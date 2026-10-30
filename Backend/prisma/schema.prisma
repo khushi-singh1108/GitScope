@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int      @id @default(autoincrement())
+
+  name           String
+  email          String?  @unique
+
+  password       String?
+
+  githubId       String?  @unique
+  githubUsername String?
+  avatarUrl      String?
+
+  createdAt      DateTime @default(now())
+
+  repositories Repository[]
+}
+model Repository {
+  id     Int @id @default(autoincrement())
+  userId Int
+
+  owner    String
+  repoName String
+  repoUrl  String
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  analyses Analysis[]
+
+  issueAnalyses IssueAnalysis[]
+}
+
+model Analysis {
+  id Int @id @default(autoincrement())
+
+  repositoryId Int
+
+  summary           String  @db.Text
+  architecture      String? @db.Text
+  techStack         String? @db.Text
+  folderExplanation Json?
+
+  createdAt DateTime @default(now())
+
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+}
+
+model IssueAnalysis {
+  id Int @id @default(autoincrement())
+
+  repositoryId Int
+
+  issueNumber Int
+  issueTitle  String
+
+  problem   String @db.Text
+  rootCause String @db.Text
+
+  difficulty    String
+  estimatedTime String
+
+  roadmap String @db.Text
+
+  createdAt DateTime @default(now())
+
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+}
+
+model Otp {
+  id        Int      @id @default(autoincrement())
+
+  email     String
+  otp       String
+
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+}
+

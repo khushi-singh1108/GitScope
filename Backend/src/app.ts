@@ -1,0 +1,38 @@
+import dotenv from "dotenv";
+dotenv.config();
+import express from "express";
+import cors from "cors";
+import passport from "./config/passport";
+
+const app = express();
+// console.log("DATABASE_URL:",process.env.DATABASE_URL);
+app.use(cors());
+app.use(express.json());
+app.use(passport.initialize());
+
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger";
+import testRoutes from "./routes/test.routes";
+import authRoutes from "./routes/auth.routes";
+import repositoryRoutes from "./routes/repository.routes";
+import issueRoutes from "./routes/issue.routes";
+import exploreRoutes from "./routes/explore.routes";
+import profileRoutes from "./routes/profile.routes";
+import chatbotRoutes from "./chatbot/chatbot.routes";
+import { loadKnowledgeBase } from "./chatbot/vectorStore";
+
+loadKnowledgeBase();
+
+app.use("/api/auth", authRoutes);
+app.use("/api/repositories",repositoryRoutes);
+app.use("/api/issues", issueRoutes);
+app.use("/api/explore",exploreRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/chatbot", chatbotRoutes);
+
+app.use("/api", testRoutes);
+app.use("/api-docs",swaggerUi.serve,swaggerUi.setup(swaggerSpec));
+
+
+
+export default app;
